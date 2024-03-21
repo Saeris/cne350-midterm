@@ -33,41 +33,38 @@ def root():
    return render_template('index.html')
 
 @app.route("/search", methods = ['GET'])
-def searchStates():
-    state = request.args.get('state')
-    print(f"Recieved state: {state}")
+def search():
+    zipcode = request.args.get('zipcode')
+    print(f"Recieved zipcode: {zipcode}")
     
-    cur.execute("SELECT * FROM `states` WHERE State=%s", [state])
+    cur.execute("SELECT * FROM `zipcodes` WHERE Zipcode=%s", [zipcode])
     result = cur.fetchall()
-    stateFound = cur.rowcount == 1
     
-    if stateFound:
-        return f"Found state: {result[0][0]}, population: {result[0][1]}"
+    if cur.rowcount == 1:
+        return f"Found zipcode: {result[0][0]}, population: {result[0][1]}"
     else:
-        return f"Unable to find state: {state}"
+        return f"Unable to find zipcode: {zipcode}"
 
-@app.route("/population", methods = ['POST'])
-def updatePopulation():
-    state = request.form['state']
+@app.route("/update", methods = ['POST'])
+def update():
+    zipcode = request.form['zipcode']
     population = request.form['population']
-    print(f"Recieved state: {state} and population: {population}")
+    print(f"Recieved zipcode: {zipcode} and population: {population}")
 
-    cur.execute("SELECT * FROM `states` WHERE State=%s", [state])
+    cur.execute("SELECT * FROM `zipcodes` WHERE Zipcode=%s", [zipcode])
     cur.fetchall()
-    stateFound = cur.rowcount == 1
 
-    if stateFound:
-        cur.execute("UPDATE `states` SET Population = %s WHERE State= %s;", [population, state])
-        cur.execute("SELECT * FROM `states` WHERE State=%s and Population=%s", [state, population])
+    if cur.rowcount == 1:
+        cur.execute("UPDATE `zipcodes` SET Population = %s WHERE Zipcode= %s;", [population, zipcode])
+        cur.execute("SELECT * FROM `zipcodes` WHERE Zipcode=%s and Population=%s", [zipcode, population])
         cur.fetchall()
-        stateUpdated = cur.rowcount == 1
 
-        if stateUpdated:
-            return f'Updated population for state: {state}'
+        if cur.rowcount == 1:
+            return f'Updated population for zipcode: {zipcode}'
         else:
-            return f"Failed to update population for state: {state}"
+            return f"Failed to update population for zipcode: {zipcode}"
     else:
-        return f"Unable to find state: {state}"
+        return f"Unable to find zipcode: {zipcode}"
         
 if __name__ == '__main__':
     app.run()
