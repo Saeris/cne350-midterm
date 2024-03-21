@@ -1,0 +1,23 @@
+version: '3.1'
+
+services:
+  db:
+    image: mariadb:latest
+    env_file: .env
+    environment:
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      MYSQL_USER:  $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_USER_PASSWORD
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      - PMA_HOST=db
+      - PMA_PORT=3306
